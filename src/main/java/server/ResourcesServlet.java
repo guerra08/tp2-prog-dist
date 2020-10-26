@@ -1,5 +1,6 @@
 package server;
 
+import domain.Resource;
 import repository.ResourceRepository;
 
 import javax.servlet.annotation.WebServlet;
@@ -18,7 +19,18 @@ public class ResourcesServlet extends HttpServlet {
             response.getOutputStream().println(ResourceRepository.getInstance().getAllResources());
         }
         else if(splitUrl.length == 3){
-            //returns one
+            try{
+                int resourceId = Integer.parseInt(splitUrl[2]);
+                Resource r = ResourceRepository.getInstance().getResourceById(resourceId);
+                if(r == null){
+                    response.setStatus(404);
+                }
+                else{
+                    response.getOutputStream().println(r.toString());
+                }
+            }catch (Exception e){
+                response.setStatus(400);
+            }
         }
     }
 
