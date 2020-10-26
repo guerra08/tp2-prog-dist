@@ -1,6 +1,5 @@
 package repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Resource;
 
@@ -25,23 +24,16 @@ public class ResourceRepository {
         return resourceStore.containsKey(peerIp);
     }
 
-    public boolean addPeer(String peerIp, String requestBody){
-        Resource[] peerResources;
-        try {
-            peerResources = mapper.readValue(requestBody, Resource[].class);
-            List<Resource> toSave = new ArrayList<>();
-            for(Resource r : peerResources){
-                r.setId(currentResourceId++);
-                r.setPeerIp(peerIp);
-                toSave.add(r);
-            }
-            resourceStore.put(peerIp, toSave);
-            System.out.println(resourceStore);
-            return true;
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return false;
+    public boolean addPeer(String peerIp, Resource[] resources){
+        List<Resource> toSave = new ArrayList<>();
+        for(Resource r : resources){
+            r.setId(currentResourceId++);
+            r.setPeerIp(peerIp);
+            toSave.add(r);
         }
+        resourceStore.put(peerIp, toSave);
+        System.out.println(resourceStore);
+        return true;
     }
 
     public void addResource(String peerIp, Resource resource){
