@@ -41,4 +41,8 @@ public class Resource {
     public String getPeerIp() { return peerIp; }
 
     public void setPeerIp(String peerIp) { this.peerIp = peerIp; }
+
+    public String toString(){
+        return "ID: " + this.id + " Name: " + this.name + " Hash: " + this.hash;
+    }
 }

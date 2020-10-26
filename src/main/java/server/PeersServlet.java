@@ -26,7 +26,7 @@ public class PeersServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestUrl = request.getRequestURI();
         String[] splitUrl = requestUrl.split("/");
-        response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesByPeer());
+        response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesGroupByPeer());
     }
 
 }

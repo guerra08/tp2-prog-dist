@@ -52,7 +52,7 @@ public class ResourceRepository {
         resourceStore.put(peerIp, resourcesList);
     }
 
-    public String getAllResourcesByPeer(){
+    public String getAllResourcesGroupByPeer(){
         StringBuilder peerAndResources = new StringBuilder();
         for(Map.Entry<String, List<Resource>> entry : resourceStore.entrySet()){
             peerAndResources.append(entry.getKey()).append(" - ").append(entry.getValue().toString()).append("\n");
@@ -60,4 +60,21 @@ public class ResourceRepository {
         return peerAndResources.toString();
     }
 
+    public Resource getResourceById(int id){
+        Resource res = null;
+        for(List<Resource> list : resourceStore.values()){
+            res = list.stream().filter(e -> e.getId() == id).findFirst().orElse(null);
+        }
+        return res;
+    }
+
+    public String getAllResources(){
+        StringBuilder ret = new StringBuilder();
+        for(List<Resource> list : resourceStore.values()){
+            for(Resource r : list){
+                ret.append(r.toString()).append("\n");
+            }
+        }
+        return ret.toString();
+    }
 }
