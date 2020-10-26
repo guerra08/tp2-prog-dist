@@ -18,7 +18,7 @@ public class BackgroundJobManager implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         // Checks connections every 5 seconds in background task
-        scheduler.scheduleAtFixedRate(() -> OverlayRepository.getInstance().checkAllConnections(), 0, 5, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> OverlayRepository.getInstance().checkAllConnections(), 0, 1, TimeUnit.SECONDS);
     }
 
     @Override

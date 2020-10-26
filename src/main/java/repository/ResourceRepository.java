@@ -32,7 +32,6 @@ public class ResourceRepository {
             toSave.add(r);
         }
         resourceStore.put(peerIp, toSave);
-        System.out.println(resourceStore);
         return true;
     }
 
@@ -68,5 +67,9 @@ public class ResourceRepository {
             }
         }
         return ret.toString();
+    }
+
+    public void removePeer(String peer){
+        resourceStore.remove(peer);
     }
 }

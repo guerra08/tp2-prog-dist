@@ -1,8 +1,10 @@
 package server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.OverlayPutBody;
 import domain.PeerPostBody;
 import org.json.JSONException;
+import repository.OverlayRepository;
 import repository.ResourceRepository;
 
 import javax.servlet.annotation.WebServlet;
@@ -27,6 +29,7 @@ public class PeersServlet extends HttpServlet {
                 if(!ResourceRepository.getInstance().addPeer(parsedBody.getIp() + ":" + parsedBody.getPort(), parsedBody.getResources())){
                     response.setStatus(400);
                 }
+                OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
             }
         }catch (JSONException e){
             response.setStatus(400);
@@ -39,8 +42,20 @@ public class PeersServlet extends HttpServlet {
         if(splitUrl.length == 2){
             response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesGroupByPeer());
         }
-        else if(splitUrl.length == 3 && splitUrl[2].equals("overlay")){
-            response.getOutputStream().println("OK");
+    }
+
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String requestUrl = request.getRequestURI();
+        String[] splitUrl = requestUrl.split("/");
+        String requestBody = request.getReader().lines().collect(Collectors.joining());
+        if(splitUrl.length == 3 && splitUrl[2].equals("overlay")){
+            try{
+                OverlayPutBody parsedBody = mapper.readValue(requestBody, OverlayPutBody.class);
+                OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
+                response.getOutputStream().println("OK");
+            }catch (JSONException e){
+                response.setStatus(400);
+            }
         }
     }
 
