@@ -36,7 +36,12 @@ public class PeersServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestUrl = request.getRequestURI();
         String[] splitUrl = requestUrl.split("/");
-        response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesGroupByPeer());
+        if(splitUrl.length == 2){
+            response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesGroupByPeer());
+        }
+        else if(splitUrl.length == 3 && splitUrl[2].equals("overlay")){
+            response.getOutputStream().println("OK");
+        }
     }
 
 }
