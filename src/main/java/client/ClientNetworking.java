@@ -6,22 +6,13 @@ import domain.Resource;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class ClientRequests {
+public class ClientNetworking {
 
-
-    public static Scanner sc = new Scanner(System.in);
-    public static List<Path> filesToSend = new ArrayList<>();
-
-
-
-    public static boolean connect(String ip, int port) {
+    public static boolean connect(String ip, int port, List<Path> filesToSend) {
         try {
             System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
 
@@ -32,9 +23,7 @@ public class ClientRequests {
             });
 
             PeerPostBody peerPostBody = new PeerPostBody(ip, port, resourceList);
-
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
-
             String url = "http://localhost:8080/peers";
 
             return httpRequest(url, "POST", peerPostBodyJSON);
@@ -44,53 +33,11 @@ public class ClientRequests {
         }
     }
 
-    public static void list(String sendDir) {
-        try {
-            Stream<Path> path = Files.walk(Paths.get(sendDir));
-            List<Path> result = path.filter(Files::isRegularFile)
-                    .collect(Collectors.toList());
+    public static void index() { }
 
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println("Index: " + i + "\tPath: " + result.get(i));
-            }
+    public static void get() { }
 
-            int choice;
-            while (true) {
-                System.out.println("Selecione um arquivo\n-1 para finalizar a seleção de arquivos");
-                choice = sc.nextInt();
-                try {
-                    if (choice == -1) {
-                        break;
-                    }
-                    if (choice == 99) {
-                        filesToSend.addAll(result);
-                    }
-                    filesToSend.add(result.get(choice));
-                    result.remove(choice);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            System.out.println("Seleção de arquivos finalizada.");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static void index() {
-    }
-
-    public static void get() {
-
-
-    }
-
-    public static void send(RequestPacket packet, DatagramSocket socket) {
-
+    public static void sendPacket(RequestPacket packet, DatagramSocket socket) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(packet.getFileName()));
             String file = br.lines().collect(Collectors.joining());
@@ -110,7 +57,6 @@ public class ClientRequests {
     }
 
     public static boolean httpRequest(String url, String method, String body) {
-
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod(method);
@@ -127,7 +73,6 @@ public class ClientRequests {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return false;
     }
 

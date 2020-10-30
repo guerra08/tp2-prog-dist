@@ -3,15 +3,10 @@ package client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.OverlayPutBody;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
-import static client.ClientRequests.*;
+import static client.ClientNetworking.*;
 
 public class OverlayTask extends TimerTask {
 
