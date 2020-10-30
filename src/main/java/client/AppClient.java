@@ -34,8 +34,7 @@ public class AppClient {
 
         /*
         // Consumes REST for overlay on background every 5 seconds
-        Timer restConsumer = new Timer();
-        restConsumer.schedule(new OverlayTask(), 0,5000);
+
 
          */
     }
@@ -51,7 +50,15 @@ public class AppClient {
         Character choice = sc.next().charAt(0);
         while (!choice.equals('e')) {
             switch(choice) {
-                case 'c': connect(ip, port); break;
+                case 'c': {
+                    if (connect(ip, port)) {
+                        // ClientThread clientThread = new ClientThread(ip, port);
+                        //new Thread(clientThread).start();
+                        Timer restConsumer = new Timer();
+                        restConsumer.schedule(new OverlayTask(ip, port), 0,5000);
+                    };
+                }
+                break;
                 case 'l': list(sendDir); break;
                 case 'i': index(); break;
                 case 'g': get(); break;

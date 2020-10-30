@@ -21,7 +21,7 @@ public class ClientRequests {
 
 
 
-    public static void connect(String ip, int port) {
+    public static boolean connect(String ip, int port) {
         try {
             System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
 
@@ -35,25 +35,13 @@ public class ClientRequests {
 
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
 
-            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/peers").openConnection();
+            String url = "http://localhost:8080/peers";
 
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-            wr.write(peerPostBodyJSON);
-            wr.flush();
-
-            int responseCode = connection.getResponseCode();
-            if(responseCode == 200){
-                System.out.println("POST was successful.");
-            }
+            return httpRequest(url, "POST", peerPostBodyJSON);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-
-
-        // ClientThread clientThread = new ClientThread(ip, Integer.parseInt(port));
-        // new Thread(clientThread).start();
     }
 
     public static void list(String sendDir) {
@@ -119,6 +107,28 @@ public class ClientRequests {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean httpRequest(String url, String method, String body) {
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod(method);
+            connection.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+            wr.write(body);
+            wr.flush();
+
+            int responseCode = connection.getResponseCode();
+            if(responseCode == 200){
+                System.out.println(method + " was successful.");
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 }
