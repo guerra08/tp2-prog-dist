@@ -1,12 +1,15 @@
 package client;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.PeerPostBody;
+import domain.Resource;
+
+import java.io.*;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,12 +18,42 @@ public class ClientRequests {
 
     public static Scanner sc = new Scanner(System.in);
     public static List<Path> filesToSend = new ArrayList<>();
-    public static void connect() {
-        System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
 
-        // criar o JSON
-        // enviar para o peer
 
+
+    public static void connect(String ip, int port) {
+        try {
+            System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
+
+            List<Resource> resourceList = new ArrayList<>();
+
+            filesToSend.forEach(file -> {
+                resourceList.add(new Resource(file.toString(), "hash123"));
+            });
+
+            PeerPostBody peerPostBody = new PeerPostBody(ip, port, resourceList);
+
+            String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
+
+            HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/peers").openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+            wr.write(peerPostBodyJSON);
+            wr.flush();
+
+            int responseCode = connection.getResponseCode();
+            if(responseCode == 200){
+                System.out.println("POST was successful.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        // ClientThread clientThread = new ClientThread(ip, Integer.parseInt(port));
+        // new Thread(clientThread).start();
     }
 
     public static void list(String sendDir) {
@@ -60,6 +93,32 @@ public class ClientRequests {
     }
 
 
-    public static void index() {}
-    public static void get() {}
+    public static void index() {
+    }
+
+    public static void get() {
+
+
+    }
+
+    public static void send(RequestPacket packet, DatagramSocket socket) {
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(packet.getFileName()));
+            String file = br.lines().collect(Collectors.joining());
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(bos);
+            os.write(file.getBytes());
+            os.flush();
+            byte[] sendData = bos.toByteArray();
+            os.close();
+            bos.close();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(packet.getIp()), packet.getPort());
+            socket.send(sendPacket);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -19,11 +19,16 @@ public class AppClient {
     public static List<Path> filesToSend = new ArrayList<>();
     public static Scanner sc = new Scanner(System.in);
 
+    private static Integer port;
+    private static String ip;
+
     public static String sendDir      = System.getProperty("user.home") + File.separator + "prog-dist-resources" + File.separator + "send";
     public static String receiveDir   = System.getProperty("user.home") + File.separator + "prog-dist-resources" + File.separator + "receive";
 
     public static void main(String[] args) {
 
+        port = Integer.parseInt(args[1]);
+        ip = args[0];
         // abre o socket
         handleInputs();
 
@@ -46,7 +51,7 @@ public class AppClient {
         Character choice = sc.next().charAt(0);
         while (!choice.equals('e')) {
             switch(choice) {
-                case 'c': connect(); break;
+                case 'c': connect(ip, port); break;
                 case 'l': list(sendDir); break;
                 case 'i': index(); break;
                 case 'g': get(); break;

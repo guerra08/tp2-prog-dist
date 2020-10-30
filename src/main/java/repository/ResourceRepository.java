@@ -24,7 +24,7 @@ public class ResourceRepository {
         return resourceStore.containsKey(peerIp);
     }
 
-    public boolean addPeer(String peerIp, Resource[] resources){
+    public boolean addPeer(String peerIp, List<Resource> resources){
         List<Resource> toSave = new ArrayList<>();
         for(Resource r : resources){
             r.setId(currentResourceId++);

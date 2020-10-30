@@ -1,14 +1,16 @@
 package domain;
 
+import java.util.List;
+
 public class PeerPostBody {
 
     private String ip;
     private Integer port;
-    private Resource[] resources;
+    private List<Resource> resources;
 
     public PeerPostBody(){}
 
-    public PeerPostBody(String ip, Integer port, Resource[] resources) {
+    public PeerPostBody(String ip, Integer port, List<Resource> resources) {
         this.ip = ip;
         this.port = port;
         this.resources = resources;
@@ -30,11 +32,11 @@ public class PeerPostBody {
         this.port = port;
     }
 
-    public Resource[] getResources() {
+    public List<Resource> getResources() {
         return resources;
     }
 
-    public void setResources(Resource[] resources) {
+    public void setResources(List<Resource> resources) {
         this.resources = resources;
     }
 }
