@@ -72,4 +72,8 @@ public class ResourceRepository {
     public void removePeer(String peer){
         resourceStore.remove(peer);
     }
+
+    public int getSize(){
+        return resourceStore.size();
+    }
 }

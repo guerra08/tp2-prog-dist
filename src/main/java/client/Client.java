@@ -46,7 +46,7 @@ public class Client {
     private void handleInputs() {
         System.out.println(
                 "Digite connect para se conectar ao servidor e enviar a sua lista de recursos\n" +
-                        "Digite list para exibir todos os arquivos locais e selecioná-los\n" +
+                        "Digite local para exibir todos os arquivos locais e selecioná-los\n" +
                         "Digite resources para mostrar todos os recursos disponíveis\n" +
                         "Digite peers para mostrar todos os peers disponíveis\n" +
                         "Digite get + id de um recurso\n" +
@@ -62,10 +62,15 @@ public class Client {
                     }
                     break;
                 }
-                case "list":        filesToSend = getInputFiles(); break;
+                case "local":        if(!isConnected) filesToSend = getInputFiles(); break;
                 case "resources":   index(server, "/resources"); break;
                 case "peers":       index(server, "/peers"); break;
-                case "get":         get(); break;
+                case "get": {
+                    System.out.println("Digite o ID do recurso desejado: ");
+                    Integer resourceId = sc.nextInt();
+                    get(server, "/resources/", resourceId);
+                    break;
+                }
                 default:            break;
             }
             choice = sc.next();

@@ -21,14 +21,15 @@ public class ClientNetworking {
      */
     public static boolean connect(String ip, int port, String server, List<Path> filesToSend) {
         try {
-            System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
+            PeerPostBody peerPostBody;
             List<Resource> resourceList = new ArrayList<>();
-            filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), FileUtil.getMD5HashOfFile(file))));
-            PeerPostBody peerPostBody = new PeerPostBody(ip, port, resourceList);
+            if(filesToSend != null){
+                filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), FileUtil.getMD5HashOfFile(file))));
+            }
+            peerPostBody = new PeerPostBody(ip, port, resourceList );
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
             HTTPResponse response = httpRequest(server + "/peers", "POST", peerPostBodyJSON);
-            if(response != null && response.getResponseCode() == 200){
-                System.out.println(response.getResponseMessage());
+            if(response != null && response.getResponseCode() == 201){
                 return true;
             }
         } catch (Exception e) {
@@ -45,7 +46,13 @@ public class ClientNetworking {
         }
     }
 
-    public static void get() { }
+    public static void get(String server, String path, Integer id) {
+        String url = server + path + id;
+        HTTPResponse response = httpRequest(url, "GET", null);
+        if(response != null){
+            System.out.println(response.getResponseMessage());
+        }
+    }
 
     /**
      * Sends a packet through a socket
@@ -89,8 +96,11 @@ public class ClientNetworking {
                 return new HTTPResponse(connection.getResponseCode(), connection.getResponseMessage());
             }
             else{
+                if(connection.getResponseCode() == 200 || connection.getResponseCode() == 201)
+                    return new HTTPResponse(connection.getResponseCode(),
+                            new BufferedReader(new InputStreamReader(connection.getInputStream())).lines().collect(Collectors.joining()));
                 return new HTTPResponse(connection.getResponseCode(),
-                        new BufferedReader(new InputStreamReader(connection.getInputStream())).lines().collect(Collectors.joining()));
+                        new BufferedReader(new InputStreamReader(connection.getErrorStream())).lines().collect(Collectors.joining()));
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -29,7 +29,11 @@ public class PeersServlet extends HttpServlet {
                 if(!ResourceRepository.getInstance().addPeer(parsedBody.getIp() + ":" + parsedBody.getPort(), parsedBody.getResources())){
                     response.setStatus(400);
                 }
-                OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
+                else{
+                    System.out.println(ResourceRepository.getInstance().getSize());
+                    OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
+                    response.setStatus(201);
+                }
             }
         }catch (JSONException e){
             response.setStatus(400);

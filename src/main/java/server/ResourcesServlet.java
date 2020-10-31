@@ -24,6 +24,7 @@ public class ResourcesServlet extends HttpServlet {
                 Resource r = ResourceRepository.getInstance().getResourceById(resourceId);
                 if(r == null){
                     response.setStatus(404);
+                    response.getOutputStream().println("Not found.");
                 }
                 else{
                     response.getOutputStream().println(r.toString());
