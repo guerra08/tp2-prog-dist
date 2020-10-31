@@ -24,14 +24,15 @@ public class ResourceRepository {
         return resourceStore.containsKey(peerIp);
     }
 
-    public boolean addPeer(String peerIp, List<Resource> resources){
+    public boolean addPeer(String peerIp, Integer port, List<Resource> resources){
         List<Resource> toSave = new ArrayList<>();
         for(Resource r : resources){
             r.setId(currentResourceId++);
             r.setPeerIp(peerIp);
+            r.setPeerPort(port);
             toSave.add(r);
         }
-        resourceStore.put(peerIp, toSave);
+        resourceStore.put(peerIp + ":" + port, toSave);
         return true;
     }
 

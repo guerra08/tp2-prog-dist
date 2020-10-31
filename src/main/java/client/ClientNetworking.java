@@ -1,8 +1,13 @@
 package client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.HTTPResponse;
 import domain.PeerPostBody;
 import domain.Resource;
+import packet.BasePacket;
+import packet.FilePacket;
+import packet.RequestPacket;
 
 import java.io.*;
 import java.net.*;
@@ -11,6 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientNetworking {
+
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Connects a Client (peer) to the main server.
@@ -26,7 +33,7 @@ public class ClientNetworking {
             if(filesToSend != null){
                 filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), FileUtil.getMD5HashOfFile(file))));
             }
-            peerPostBody = new PeerPostBody(ip, port, resourceList );
+            peerPostBody = new PeerPostBody(ip, port, resourceList);
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
             HTTPResponse response = httpRequest(server + "/peers", "POST", peerPostBodyJSON);
             if(response != null && response.getResponseCode() == 201){
@@ -39,6 +46,11 @@ public class ClientNetworking {
         return false;
     }
 
+    /**
+     * Outputs the index (lists all) of a given route
+     * @param server String server addr
+     * @param route String route
+     */
     public static void index(String server, String route) {
         HTTPResponse response = httpRequest(server + route, "GET", null);
         if(response != null){
@@ -46,35 +58,59 @@ public class ClientNetworking {
         }
     }
 
-    public static void get(String server, String path, Integer id) {
+    /**
+     * Gets a resource from the server and requests it to the owner
+     * @param server String server
+     * @param path String path
+     * @param id Integer resource id
+     * @param socket DatagramSocket
+     */
+    public static void get(String server, String path, Integer id, DatagramSocket socket) {
         String url = server + path + id;
         HTTPResponse response = httpRequest(url, "GET", null);
         if(response != null){
+            if(response.getResponseCode() == 200){
+                try {
+                    Resource r = mapper.readValue(response.getResponseMessage(), Resource.class);
+                    sendPacket(new RequestPacket(r.getName(), r.getPeerIp(), r.getPeerPort()), socket);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            }
             System.out.println(response.getResponseMessage());
         }
     }
 
     /**
      * Sends a packet through a socket
-     * @param packet RequestPacket
+     * @param packet BasePacket
      * @param socket DatagramSocket
      */
-    public static void sendPacket(RequestPacket packet, DatagramSocket socket) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(packet.getFileName()));
-            String file = br.lines().collect(Collectors.joining());
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bos);
-            os.write(file.getBytes());
-            os.flush();
-            byte[] sendData = bos.toByteArray();
-            os.close();
-            bos.close();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(packet.getIp()), packet.getPort());
-            socket.send(sendPacket);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static void sendPacket(BasePacket packet, DatagramSocket socket) {
+        if(packet instanceof FilePacket){
+            System.out.println(((FilePacket) packet).getFileName());
         }
+        if(packet instanceof RequestPacket){
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(((RequestPacket) packet).getFileName()));
+                String file = br.lines().collect(Collectors.joining());
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream os = new ObjectOutputStream(bos);
+                os.write(file.getBytes());
+                os.flush();
+                byte[] sendData = bos.toByteArray();
+                os.close();
+                bos.close();
+                DatagramPacket sendPacket = new DatagramPacket(sendData,
+                        sendData.length,
+                        InetAddress.getByName(((RequestPacket) packet).getIp()),
+                        ((RequestPacket) packet).getPort());
+                socket.send(sendPacket);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /**

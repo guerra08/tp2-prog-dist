@@ -6,6 +6,7 @@ public class Resource {
     private String name;
     private String hash;
     private String peerIp;
+    private Integer peerPort;
 
     public Resource(){}
 
@@ -41,6 +42,10 @@ public class Resource {
     public String getPeerIp() { return peerIp; }
 
     public void setPeerIp(String peerIp) { this.peerIp = peerIp; }
+
+    public Integer getPeerPort() { return peerPort; }
+
+    public void setPeerPort(Integer peerPort) { this.peerPort = peerPort; }
 
     public String toString(){
         return "ID: " + this.id + " Name: " + this.name + " Hash: " + this.hash;

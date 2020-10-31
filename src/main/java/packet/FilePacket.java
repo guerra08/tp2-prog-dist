@@ -1,8 +1,6 @@
-package client;
+package packet;
 
-import java.io.Serializable;
-
-public class FilePacket implements Serializable {
+public class FilePacket extends BasePacket {
 
     private String fileName;
     private byte[] buff;

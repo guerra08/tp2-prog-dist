@@ -1,10 +1,11 @@
 package client;
 
+import packet.FilePacket;
+import packet.RequestPacket;
+
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.HashSet;
 import java.util.Set;
 import static client.ClientNetworking.*;
 
@@ -12,20 +13,20 @@ public class ClientThread implements Runnable{
 
     private final String ip;
     private final int port;
+    private final DatagramSocket clientSocket;
 
-    public ClientThread(String ip, int port) {
+    public ClientThread(String ip, int port, DatagramSocket socket) {
         this.ip = ip;
         this.port = port;
+        this.clientSocket = socket;
     }
     
     @Override
     public void run() {
-        DatagramSocket clientSocket;
         BufferedReader br;
         int clientPort;
         Set<String> recievedPackets;
         try {
-            clientSocket = new DatagramSocket(port, InetAddress.getByName(ip));
             clientSocket.setSoTimeout(500);
             while (!Thread.currentThread().isInterrupted()) {
                 byte[] buf = new byte[1024];
@@ -35,7 +36,7 @@ public class ClientThread implements Runnable{
                 ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
                 Object obj = is.readObject();
                 if (obj instanceof RequestPacket) {
-                    sendPacket((RequestPacket) obj, clientSocket);
+                    FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
                 } else if (obj instanceof FilePacket) {
                     System.out.println("aaaa");
                 }

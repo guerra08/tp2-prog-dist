@@ -1,6 +1,10 @@
 package client;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +23,13 @@ public class Client {
         this.port = port;
         this.ip = ip;
         this.server = server;
-        this.clientThread = new Thread(new ClientThread(ip, port));
+        try {
+            this.clientSocket = new DatagramSocket(port, InetAddress.getByName(ip));
+        } catch (SocketException | UnknownHostException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        this.clientThread = new Thread(new ClientThread(ip, port, clientSocket));
         this.restConsumer = new Timer();
     }
 
@@ -27,6 +37,7 @@ public class Client {
     private final Scanner sc = new Scanner(System.in);
     private Timer restConsumer;
     private Thread clientThread;
+    private DatagramSocket clientSocket;
 
     private final Integer port;
     private final String ip;
@@ -68,7 +79,7 @@ public class Client {
                 case "get": {
                     System.out.println("Digite o ID do recurso desejado: ");
                     Integer resourceId = sc.nextInt();
-                    get(server, "/resources/", resourceId);
+                    get(server, "/resources/", resourceId, clientSocket);
                     break;
                 }
                 default:            break;

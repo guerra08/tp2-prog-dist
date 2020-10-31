@@ -1,8 +1,6 @@
-package client;
+package packet;
 
-import java.io.Serializable;
-
-public class RequestPacket implements Serializable {
+public class RequestPacket extends BasePacket {
     private String fileName;
     private String ip;
     private int port;

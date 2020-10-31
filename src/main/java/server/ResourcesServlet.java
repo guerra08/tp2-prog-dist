@@ -1,5 +1,6 @@
 package server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Resource;
 import repository.ResourceRepository;
 
@@ -11,6 +12,7 @@ import java.io.IOException;
 
 @WebServlet("/resources/*")
 public class ResourcesServlet extends HttpServlet {
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestUrl = request.getRequestURI();
@@ -27,7 +29,7 @@ public class ResourcesServlet extends HttpServlet {
                     response.getOutputStream().println("Not found.");
                 }
                 else{
-                    response.getOutputStream().println(r.toString());
+                    response.getOutputStream().println(mapper.writeValueAsString(r));
                 }
             }catch (Exception e){
                 response.setStatus(400);

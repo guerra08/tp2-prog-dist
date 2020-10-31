@@ -1,5 +1,8 @@
 package client;
 
+import packet.FilePacket;
+import packet.RequestPacket;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +32,11 @@ public class FileUtil {
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public static FilePacket getFilePacketOfRequest(RequestPacket rp){
+
+        return null;
     }
 
 }

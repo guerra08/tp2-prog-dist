@@ -26,11 +26,10 @@ public class PeersServlet extends HttpServlet {
         try{
             PeerPostBody parsedBody = mapper.readValue(requestBody, PeerPostBody.class);
             if(!ResourceRepository.getInstance().isPeerRegistered("" + request.getRemotePort())){
-                if(!ResourceRepository.getInstance().addPeer(parsedBody.getIp() + ":" + parsedBody.getPort(), parsedBody.getResources())){
+                if(!ResourceRepository.getInstance().addPeer(parsedBody.getIp(), parsedBody.getPort(), parsedBody.getResources())){
                     response.setStatus(400);
                 }
                 else{
-                    System.out.println(ResourceRepository.getInstance().getSize());
                     OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
                     response.setStatus(201);
                 }
@@ -49,6 +48,7 @@ public class PeersServlet extends HttpServlet {
     }
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("PUT");
         String requestUrl = request.getRequestURI();
         String[] splitUrl = requestUrl.split("/");
         String requestBody = request.getReader().lines().collect(Collectors.joining());
