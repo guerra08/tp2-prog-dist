@@ -19,7 +19,6 @@ public class OverlayRepository {
     }
 
     public void putPeer(String peer){
-        System.out.println(peer);
         this.overlayKeeper.put(peer, LocalTime.now());
     }
 

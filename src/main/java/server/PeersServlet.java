@@ -24,7 +24,6 @@ public class PeersServlet extends HttpServlet {
         String[] splitUrl = requestUrl.split("/");
         String requestBody = request.getReader().lines().collect(Collectors.joining());
         try{
-            System.out.println("Entrou no try");
             PeerPostBody parsedBody = mapper.readValue(requestBody, PeerPostBody.class);
             if(!ResourceRepository.getInstance().isPeerRegistered("" + request.getRemotePort())){
                 if(!ResourceRepository.getInstance().addPeer(parsedBody.getIp() + ":" + parsedBody.getPort(), parsedBody.getResources())){
@@ -40,7 +39,6 @@ public class PeersServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String requestUrl = request.getRequestURI();
         String[] splitUrl = requestUrl.split("/");
-        System.out.println("xD");
         if(splitUrl.length == 2){
             response.getOutputStream().println(ResourceRepository.getInstance().getAllResourcesGroupByPeer());
         }
@@ -54,7 +52,7 @@ public class PeersServlet extends HttpServlet {
             try{
                 OverlayPutBody parsedBody = mapper.readValue(requestBody, OverlayPutBody.class);
                 OverlayRepository.getInstance().putPeer(parsedBody.getIp() + ":" + parsedBody.getPort());
-                response.getOutputStream().println("OK");
+                response.getOutputStream().println("Successful PUT on /peers/overlay");
             }catch (JSONException e){
                 response.setStatus(400);
             }

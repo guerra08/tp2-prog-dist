@@ -4,26 +4,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.OverlayPutBody;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.TimerTask;
 
 import static client.ClientNetworking.*;
 
 public class OverlayTask extends TimerTask {
 
-    private String ip;
-    private Integer port;
+    private final String ip;
+    private final Integer port;
+    private final String server;
 
-    public OverlayTask(String ip, Integer port) {
+    public OverlayTask(String ip, Integer port, String server) {
         this.ip = ip;
         this.port = port;
+        this.server = server;
     }
 
+    /**
+     * Consumes the overlay PUT method (keeps the peer alive)
+     * @throws IOException When request fails
+     */
     public void consumeRest() throws IOException {
-        String url = "http://localhost:8080/peers/overlay";
+        String url = server + "/peers/overlay";
         OverlayPutBody overlayBody = new OverlayPutBody(ip, port);
         String overlayBodyJson = new ObjectMapper().writeValueAsString(overlayBody);
         httpRequest(url, "PUT", overlayBodyJson);
-
     }
 
     @Override

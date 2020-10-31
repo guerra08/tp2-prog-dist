@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class FilePacket implements Serializable {
 
     private String fileName;
-    private byte buff[];
+    private byte[] buff;
 
     public FilePacket(String fileName, byte[] buff) {
         this.fileName = fileName;

@@ -17,7 +17,7 @@ public class ClientThread implements Runnable{
         this.ip = ip;
         this.port = port;
     }
-
+    
     @Override
     public void run() {
         DatagramSocket clientSocket;
@@ -44,7 +44,7 @@ public class ClientThread implements Runnable{
         }
         catch (IOException ignored){ }
         catch (ClassNotFoundException e){
-            System.out.println("Error on Thread.");
+            e.printStackTrace();
             System.exit(1);
         }
     }

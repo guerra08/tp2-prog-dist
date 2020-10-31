@@ -15,49 +15,63 @@ import static client.ClientNetworking.*;
 
 public class Client {
 
-    public Client(Integer port, String ip) {
+    public Client(String ip, Integer port, String server) {
         this.port = port;
         this.ip = ip;
+        this.server = server;
+        this.clientThread = new Thread(new ClientThread(ip, port));
+        this.restConsumer = new Timer();
     }
 
     private List<Path> filesToSend;
     private final Scanner sc = new Scanner(System.in);
+    private Timer restConsumer;
+    private Thread clientThread;
 
     private final Integer port;
     private final String ip;
+    private final String server;
+    private boolean isConnected = false;
 
     public static void main(String[] args) {
-        Client c = new Client(Integer.parseInt(args[1]), args[0]);
-        c.handleInputs();
+        if(args.length != 3){
+            System.out.println("Usage: java Client <client-ip> <client-port> <server-address>");
+        }
+        else{
+            Client c = new Client(args[0], Integer.parseInt(args[1]), args[2]);
+            c.handleInputs();
+        }
     }
 
     private void handleInputs() {
         System.out.println(
                 "Digite connect para se conectar ao servidor e enviar a sua lista de recursos\n" +
-                        "Digite list para exibir todos os arquivos e selecioná-los\n" +
-                        "Digite index para mostrar todos os recursos disponíveis\n" +
+                        "Digite list para exibir todos os arquivos locais e selecioná-los\n" +
+                        "Digite resources para mostrar todos os recursos disponíveis\n" +
+                        "Digite peers para mostrar todos os peers disponíveis\n" +
                         "Digite get + id de um recurso\n" +
                         "Digite exit para finalizar\n");
-
-        Character choice = sc.next().charAt(0);
-        while (!choice.equals('e')) {
+        String choice = sc.next();
+        while (!choice.equals("exit")) {
             switch(choice) {
-                case 'c': {
-                    if (connect(ip, port, filesToSend)) {
-                        ClientThread clientThread = new ClientThread(ip, port);
-                        new Thread(clientThread).start();
-                        Timer restConsumer = new Timer();
-                        restConsumer.schedule(new OverlayTask(ip, port), 0,5000);
+                case "connect": {
+                    if (!isConnected && connect(ip, port, server, filesToSend)) {
+                        restConsumer.schedule((new OverlayTask(ip, port, server)), 0,5000);
+                        clientThread.start();
+                        isConnected = true;
                     }
+                    break;
                 }
-                break;
-                case 'l': filesToSend = getInputFiles(); break;
-                case 'i': index(); break;
-                case 'g': get(); break;
-                default: break;
+                case "list":        filesToSend = getInputFiles(); break;
+                case "resources":   index(server, "/resources"); break;
+                case "peers":       index(server, "/peers"); break;
+                case "get":         get(); break;
+                default:            break;
             }
-            choice = sc.next().charAt(0);
+            choice = sc.next();
         }
+        restConsumer.cancel();
+        clientThread.interrupt();
     }
 
     private List<Path> getInputFiles() {
@@ -66,11 +80,9 @@ public class Client {
             Stream<Path> path = Files.walk(Paths.get(Config.sendDir));
             List<Path> result = path.filter(Files::isRegularFile)
                     .collect(Collectors.toList());
-
             for (int i = 0; i < result.size(); i++) {
                 System.out.println("Index: " + i + "\tPath: " + result.get(i));
             }
-
             int choice;
             while (true) {
                 System.out.println("Selecione um arquivo\n-1 para finalizar a seleção de arquivos");
@@ -91,7 +103,6 @@ public class Client {
             }
             System.out.println("Seleção de arquivos finalizada.");
             return filesToSend;
-
         } catch (IOException e) {
             e.printStackTrace();
             return null;
