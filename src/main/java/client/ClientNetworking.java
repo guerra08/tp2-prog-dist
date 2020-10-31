@@ -23,7 +23,7 @@ public class ClientNetworking {
         try {
             System.out.println("Os seguintes arquivos serão enviados para o servidor: " + filesToSend);
             List<Resource> resourceList = new ArrayList<>();
-            filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), "hash123")));
+            filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), FileUtil.getMD5HashOfFile(file))));
             PeerPostBody peerPostBody = new PeerPostBody(ip, port, resourceList);
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
             HTTPResponse response = httpRequest(server + "/peers", "POST", peerPostBodyJSON);

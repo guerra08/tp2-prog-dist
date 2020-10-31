@@ -81,7 +81,7 @@ public class Client {
             List<Path> result = path.filter(Files::isRegularFile)
                     .collect(Collectors.toList());
             for (int i = 0; i < result.size(); i++) {
-                System.out.println("Index: " + i + "\tPath: " + result.get(i));
+                System.out.println("Index: " + i + "\tPathh: " + result.get(i));
             }
             int choice;
             while (true) {
