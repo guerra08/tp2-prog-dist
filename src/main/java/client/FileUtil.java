@@ -65,7 +65,6 @@ public class FileUtil {
         try{
             String pathFile = packets.get(0).getFileName();
             String fileName  = pathFile.substring(pathFile.lastIndexOf(File.separator) + 1);
-            System.out.println(fileName);
             File fileToCreate = new File(Config.receiveDir + File.separator + fileName);
             OutputStream os = new FileOutputStream(fileToCreate);
             while(!packets.isEmpty()){

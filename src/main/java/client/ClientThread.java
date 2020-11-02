@@ -40,7 +40,6 @@ public class ClientThread implements Runnable{
                     sendFilePackets(files, clientSocket);
                 } else if (obj instanceof FilePacket) {
                     filePackets.add((FilePacket) obj);
-                    System.out.println(((FilePacket) obj).getFileName());
                     if (((FilePacket) obj).isLastPacket()) {
                         FileUtil.mountFileFromPackets(filePackets);
                     }

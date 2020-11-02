@@ -89,7 +89,6 @@ public class ClientNetworking {
     public static void sendPacket(BasePacket packet, DatagramSocket socket) {
         if(packet instanceof FilePacket){
             try {
-                System.out.println("Chegou um request" + ((FilePacket) packet).getBuff().length);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(bos);
                 os.writeObject(packet);

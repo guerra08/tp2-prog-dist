@@ -74,12 +74,30 @@ public class Client {
                     break;
                 }
                 case "local":        if(!isConnected) filesToSend = getInputFiles(); break;
-                case "resources":   index(server, "/resources"); break;
-                case "peers":       index(server, "/peers"); break;
+                case "resources":   {
+                    if (isConnected) {
+                        index(server, "/resources");
+                    } else {
+                        System.out.println("Conecte-se ao servidor para buscar os recursos.");
+                    }
+                    break;
+                }
+                case "peers": {
+                    if (isConnected) {
+                        index(server, "/peers");
+                    } else {
+                        System.out.println("Conecte-se ao servidor para buscar os recursos.");
+                    }
+                    break;
+                }
                 case "get": {
-                    System.out.println("Digite o ID do recurso desejado: ");
-                    Integer resourceId = sc.nextInt();
-                    get(server, "/resources/", resourceId, clientSocket);
+                    if (isConnected) {
+                        System.out.println("Digite o ID do recurso desejado: ");
+                        Integer resourceId = sc.nextInt();
+                        get(server, "/resources/", resourceId, clientSocket);
+                    } else {
+                        System.out.println("Conecte-se ao server para realizar a troca de arquivos");
+                    }
                     break;
                 }
                 default:            break;
@@ -96,22 +114,21 @@ public class Client {
             Stream<Path> path = Files.walk(Paths.get(Config.sendDir));
             List<Path> result = path.filter(Files::isRegularFile)
                     .collect(Collectors.toList());
-            for (int i = 0; i < result.size(); i++) {
-                System.out.println("Index: " + i + "\tPathh: " + result.get(i));
-            }
+
             int choice;
             while (true) {
+                if (result.isEmpty()) break;
+                for (int i = 0; i < result.size(); i++) {
+                    System.out.println("Index: " + i + "\tPath: " + result.get(i));
+                }
                 System.out.println("Selecione um arquivo\n-1 para finalizar a seleção de arquivos");
                 choice = sc.nextInt();
                 try {
                     if (choice == -1) {
                         break;
+                    } else if (choice < result.size()) {
+                        filesToSend.add(result.remove(choice));
                     }
-                    if (choice == 99) {
-                        filesToSend.addAll(result);
-                    }
-                    filesToSend.add(result.get(choice));
-                    result.remove(choice);
 
                 } catch (Exception e) {
                     e.printStackTrace();
