@@ -128,8 +128,8 @@ public class ClientNetworking {
     }
 
     public static void sendFilePackets(ArrayList<FilePacket> filePackets, DatagramSocket socket) {
-        for (int i = 0; i < filePackets.size(); i++) {
-            sendPacket(filePackets.get(i), socket);
+        for (FilePacket filePacket : filePackets) {
+            sendPacket(filePacket, socket);
         }
     }
 

@@ -56,4 +56,20 @@ public class FileUtil {
         return filePackets;
     }
 
+    public static void mountFileFromPackets(ArrayList<FilePacket> packets) {
+        try{
+            String pathFile = packets.get(0).getFileName();
+            String fileName  = pathFile.substring(pathFile.lastIndexOf(File.separator) + 1);
+            System.out.println(fileName);
+            File fileToCreate = new File(Config.receiveDir + File.separator + fileName);
+            OutputStream os = new FileOutputStream(fileToCreate);
+            while(!packets.isEmpty()){
+                os.write(packets.remove(0).getBuff());
+            }
+            os.close();
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+    }
+
 }

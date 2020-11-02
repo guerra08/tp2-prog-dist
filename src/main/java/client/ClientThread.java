@@ -41,7 +41,9 @@ public class ClientThread implements Runnable{
                     ArrayList<FilePacket> filePackets = FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
                     sendFilePackets(filePackets, clientSocket);
                 } else if (obj instanceof FilePacket) {
-                    System.out.println("Olá senhor, o seu FilePacket chegou. " + ((FilePacket) obj).getFileName());
+                    ArrayList<FilePacket> filePackets = new ArrayList<>();
+                    filePackets.add((FilePacket) obj);
+                    FileUtil.mountFileFromPackets(filePackets);
                 }
             }
             catch (IOException ignored){ }
