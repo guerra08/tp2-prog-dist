@@ -26,9 +26,9 @@ public class ClientThread implements Runnable{
         BufferedReader br;
         int clientPort;
         Set<String> recievedPackets;
-        try {
-            clientSocket.setSoTimeout(500);
-            while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                clientSocket.setSoTimeout(500);
                 byte[] buf = new byte[1024];
                 DatagramPacket dp = new DatagramPacket(buf, buf.length);
                 clientSocket.receive(dp);
@@ -40,13 +40,12 @@ public class ClientThread implements Runnable{
                 } else if (obj instanceof FilePacket) {
                     System.out.println("aaaa");
                 }
-                System.out.println("Client has started on port " + port);
             }
-        }
-        catch (IOException ignored){ }
-        catch (ClassNotFoundException e){
-            e.printStackTrace();
-            System.exit(1);
+            catch (IOException ignored){ }
+            catch (ClassNotFoundException e){
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
     }
 }
