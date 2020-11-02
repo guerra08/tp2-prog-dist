@@ -11,7 +11,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 public class FileUtil {
 
@@ -39,20 +39,25 @@ public class FileUtil {
     public static ArrayList<FilePacket> getFilePacketOfRequest(RequestPacket rp){
         ArrayList<FilePacket> filePackets = new ArrayList<>();
         try {
-            // RandomAccessFile raf = new RandomAccessFile(rp.getFileName(), "r");
             byte[] allBytesOfFile = Files.readAllBytes(Paths.get(rp.getFileName()));
-            // raf.readFully(allBytesOfFile);
-            // raf.close();
-            int parts = allBytesOfFile.length / 1024;
-            System.out.println("Partes: " + parts);
+            int parts = allBytesOfFile.length / 512;
             if (parts == 0) {
-                FilePacket file = new FilePacket(rp.getFileName(), allBytesOfFile, rp.getPort(), rp.getIp());
+                FilePacket file = new FilePacket(rp.getFileName(), allBytesOfFile, rp.getPort(), rp.getIp(), true);
                 filePackets.add(file);
+            } else {
+                int byteStart = 0;
+                for (int i = 0; i <= parts; i++) {
+                    int byteEnd = Math.min(byteStart + 512, allBytesOfFile.length);
+                    FilePacket file = new FilePacket(rp.getFileName(), Arrays.copyOfRange(allBytesOfFile, byteStart, byteEnd), rp.getPort(), rp.getIp(), i == parts);
+                    filePackets.add(file);
+                    byteStart += 512;
+                }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(filePackets);
         return filePackets;
     }
 

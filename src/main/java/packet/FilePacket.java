@@ -6,6 +6,7 @@ public class FilePacket extends BasePacket {
     private byte[] buff;
     private int port;
     private String ip;
+    private boolean lastPacket;
 
     public int getPort() {
         return port;
@@ -23,11 +24,12 @@ public class FilePacket extends BasePacket {
         this.ip = ip;
     }
 
-    public FilePacket(String fileName, byte[] buff, int port, String ip) {
+    public FilePacket(String fileName, byte[] buff, int port, String ip, boolean lastPacket) {
         this.fileName = fileName;
         this.buff = buff;
         this.port = port;
         this.ip = ip;
+        this.lastPacket = lastPacket;
     }
 
     public FilePacket(String fileName, byte[] buff) {
@@ -51,4 +53,11 @@ public class FilePacket extends BasePacket {
         this.buff = buff;
     }
 
+    public boolean isLastPacket() {
+        return lastPacket;
+    }
+
+    public void setLastPacket(boolean lastPacket) {
+        this.lastPacket = lastPacket;
+    }
 }
