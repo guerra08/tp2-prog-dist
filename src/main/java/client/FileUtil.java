@@ -3,13 +3,15 @@ package client;
 import packet.FilePacket;
 import packet.RequestPacket;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class FileUtil {
 
@@ -34,9 +36,40 @@ public class FileUtil {
         }
     }
 
-    public static FilePacket getFilePacketOfRequest(RequestPacket rp){
+    public static ArrayList<FilePacket> getFilePacketOfRequest(RequestPacket rp){
+        ArrayList<FilePacket> filePackets = new ArrayList<>();
+        try {
+            // RandomAccessFile raf = new RandomAccessFile(rp.getFileName(), "r");
+            byte[] allBytesOfFile = Files.readAllBytes(Paths.get(rp.getFileName()));
+            // raf.readFully(allBytesOfFile);
+            // raf.close();
+            int parts = allBytesOfFile.length / 1024;
+            System.out.println("Partes: " + parts);
+            if (parts == 0) {
+                FilePacket file = new FilePacket(rp.getFileName(), allBytesOfFile, rp.getPort(), rp.getIp());
+                filePackets.add(file);
+            }
 
-        return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return filePackets;
+    }
+
+    public static void mountFileFromPackets(ArrayList<FilePacket> packets) {
+        try{
+            String pathFile = packets.get(0).getFileName();
+            String fileName  = pathFile.substring(pathFile.lastIndexOf(File.separator) + 1);
+            System.out.println(fileName);
+            File fileToCreate = new File(Config.receiveDir + File.separator + fileName);
+            OutputStream os = new FileOutputStream(fileToCreate);
+            while(!packets.isEmpty()){
+                os.write(packets.remove(0).getBuff());
+            }
+            os.close();
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 
 }
