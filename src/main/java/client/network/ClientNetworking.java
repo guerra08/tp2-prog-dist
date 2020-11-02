@@ -1,17 +1,17 @@
-package client;
+package client.network;
 
+import client.util.FileUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.HTTPResponse;
 import domain.PeerPostBody;
 import domain.Resource;
-import packet.BasePacket;
-import packet.FilePacket;
-import packet.RequestPacket;
+import client.packet.BasePacket;
+import client.packet.FilePacket;
+import client.packet.RequestPacket;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,17 +26,18 @@ public class ClientNetworking {
      * @param filesToSend List<Path> Files to be registered
      * @return boolean
      */
-    public static boolean connect(String ip, int port, String server, List<Path> filesToSend) {
+    public static boolean connect(String ip, int port, String server, List<String> filesToSend) {
         try {
             PeerPostBody peerPostBody;
             List<Resource> resourceList = new ArrayList<>();
             if(filesToSend != null){
-                filesToSend.forEach(file -> resourceList.add(new Resource(file.toString(), FileUtil.getMD5HashOfFile(file))));
+                filesToSend.forEach(file -> resourceList.add(new Resource(file, FileUtil.getMD5HashOfFile(file))));
             }
             peerPostBody = new PeerPostBody(ip, port, resourceList);
             String peerPostBodyJSON = new ObjectMapper().writeValueAsString(peerPostBody);
             HTTPResponse response = httpRequest(server + "/peers", "POST", peerPostBodyJSON);
             if(response != null && response.getResponseCode() == 201){
+                System.out.println("Conectado com sucesso!");
                 return true;
             }
         } catch (Exception e) {
@@ -82,12 +83,11 @@ public class ClientNetworking {
     }
 
     /**
-     * Sends a packet through a socket
+     * Sends a client.packet through a socket
      * @param packet BasePacket
      * @param socket DatagramSocket
      */
     public static void sendPacket(BasePacket packet, DatagramSocket socket) {
-        if(packet instanceof FilePacket){
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(bos);
@@ -98,32 +98,12 @@ public class ClientNetworking {
                 bos.close();
                 DatagramPacket sendPacket = new DatagramPacket(sendData,
                         sendData.length,
-                        InetAddress.getByName(((FilePacket) packet).getIp()),
-                        ((FilePacket) packet).getPort());
+                        InetAddress.getByName(packet.getDestinationIp()),
+                        packet.getDestinationPort());
                 socket.send(sendPacket);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        if(packet instanceof RequestPacket){
-            try {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream os = new ObjectOutputStream(bos);
-                os.writeObject(packet);
-                os.flush();
-                byte[] sendData = bos.toByteArray();
-                os.close();
-                bos.close();
-                DatagramPacket sendPacket = new DatagramPacket(sendData,
-                        sendData.length,
-                        InetAddress.getByName(((RequestPacket) packet).getDestinationIp()),
-                        ((RequestPacket) packet).getDestinationPort());
-                socket.send(sendPacket);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
     }
 
     public static void sendFilePackets(ArrayList<FilePacket> filePackets, DatagramSocket socket) {

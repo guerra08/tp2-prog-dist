@@ -1,29 +1,28 @@
 package client;
 
-import packet.FilePacket;
-import packet.RequestPacket;
+import client.packet.FilePacket;
+import client.packet.RequestPacket;
+import client.util.FileUtil;
 
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
-import java.util.Set;
-import static client.ClientNetworking.*;
+import static client.network.ClientNetworking.*;
 
 public class ClientThread implements Runnable{
 
-    private final String ip;
-    private final int port;
     private final DatagramSocket clientSocket;
-    private ArrayList<FilePacket> filePackets;
+    private final ArrayList<FilePacket> filePackets;
 
-    public ClientThread(String ip, int port, DatagramSocket socket) {
-        this.ip = ip;
-        this.port = port;
+    public ClientThread(DatagramSocket socket) {
         this.clientSocket = socket;
         filePackets = new ArrayList<>();
     }
-    
+
+    /**
+     * Receives DatagramPackets while not interrupted and processes them accordingly.
+     */
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {

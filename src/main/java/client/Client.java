@@ -1,5 +1,7 @@
 package client;
 
+import client.network.OverlayTask;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.file.Files;
@@ -12,9 +14,19 @@ import java.util.Timer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static client.ClientNetworking.*;
+import static client.network.ClientNetworking.*;
 
 public class Client {
+
+    private List<String> filesToSend;
+    private final Scanner sc = new Scanner(System.in);
+    private final Timer restConsumer;
+    private final Thread clientThread;
+    private DatagramSocket clientSocket;
+    private final Integer port;
+    private final String ip;
+    private final String server;
+    private boolean isConnected = false;
 
     public Client(String ip, Integer port, String server) {
         this.port = port;
@@ -26,20 +38,9 @@ public class Client {
             e.printStackTrace();
             System.exit(1);
         }
-        this.clientThread = new Thread(new ClientThread(ip, port, clientSocket));
+        this.clientThread = new Thread(new ClientThread(clientSocket));
         this.restConsumer = new Timer();
     }
-
-    private List<Path> filesToSend;
-    private final Scanner sc = new Scanner(System.in);
-    private Timer restConsumer;
-    private Thread clientThread;
-    private DatagramSocket clientSocket;
-
-    private final Integer port;
-    private final String ip;
-    private final String server;
-    private boolean isConnected = false;
 
     public static void main(String[] args) {
         if(args.length != 3){
@@ -51,6 +52,9 @@ public class Client {
         }
     }
 
+    /**
+     * Handles the user input on the TTY and performs the respective task
+     */
     private void handleInputs() {
         System.out.println(
                 "Digite connect para se conectar ao servidor e enviar a sua lista de recursos\n" +
@@ -105,9 +109,13 @@ public class Client {
         clientThread.interrupt();
     }
 
-    private List<Path> getInputFiles() {
+    /**
+     * Returns a list of files that have been selected by the user as available on the central server.
+     * @return List<String>
+     */
+    private List<String> getInputFiles() {
         try {
-            List<Path> filesToSend = new ArrayList<>();
+            List<String> filesToSend = new ArrayList<>();
             Stream<Path> path = Files.walk(Paths.get(Config.sendDir));
             List<Path> result = path.filter(Files::isRegularFile)
                     .collect(Collectors.toList());
@@ -124,7 +132,7 @@ public class Client {
                     if (choice == -1) {
                         break;
                     } else if (choice < result.size()) {
-                        filesToSend.add(result.remove(choice));
+                        filesToSend.add(result.remove(choice).getFileName().toString());
                     }
 
                 } catch (Exception e) {

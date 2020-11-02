@@ -1,40 +1,16 @@
-package packet;
+package client.packet;
 
 public class FilePacket extends BasePacket {
 
     private String fileName;
     private byte[] buff;
-    private int port;
-    private String ip;
     private boolean lastPacket;
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
     public FilePacket(String fileName, byte[] buff, int port, String ip, boolean lastPacket) {
+        super(ip, port);
         this.fileName = fileName;
         this.buff = buff;
-        this.port = port;
-        this.ip = ip;
         this.lastPacket = lastPacket;
-    }
-
-    public FilePacket(String fileName, byte[] buff) {
-        this.fileName = fileName;
-        this.buff = buff;
     }
 
     public String getFileName() {

@@ -1,13 +1,12 @@
-package client;
+package client.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.OverlayPutBody;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.TimerTask;
 
-import static client.ClientNetworking.*;
+import static client.network.ClientNetworking.*;
 
 public class OverlayTask extends TimerTask {
 

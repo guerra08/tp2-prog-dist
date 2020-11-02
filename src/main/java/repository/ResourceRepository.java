@@ -20,10 +20,22 @@ public class ResourceRepository {
         return instance;
     }
 
+    /**
+     * Checks if a Peer is already registered in the server
+     * @param peerIp String
+     * @return boolean
+     */
     public boolean isPeerRegistered(String peerIp){
         return resourceStore.containsKey(peerIp);
     }
 
+    /**
+     * Adds a Peer and it's optional resources
+     * @param peerIp String
+     * @param port Integer
+     * @param resources List<Resource>
+     * @return boolean
+     */
     public boolean addPeer(String peerIp, Integer port, List<Resource> resources){
         List<Resource> toSave = new ArrayList<>();
         for(Resource r : resources){
@@ -36,6 +48,11 @@ public class ResourceRepository {
         return true;
     }
 
+    /**
+     * Adds a Resource of a Peer
+     * @param peerIp String
+     * @param resource Resource
+     */
     public void addResource(String peerIp, Resource resource){
         resource.setId(currentResourceId++);
         resource.setPeerIp(peerIp);
@@ -44,6 +61,10 @@ public class ResourceRepository {
         resourceStore.put(peerIp, resourcesList);
     }
 
+    /**
+     * Returns an String representation of all the Resources grouped by it's owner (Peer)
+     * @return String
+     */
     public String getAllResourcesGroupByPeer(){
         StringBuilder peerAndResources = new StringBuilder();
         for(Map.Entry<String, List<Resource>> entry : resourceStore.entrySet()){
@@ -52,6 +73,11 @@ public class ResourceRepository {
         return peerAndResources.toString();
     }
 
+    /**
+     * Returns a Resource given it's generated ID
+     * @param id int
+     * @return Resource
+     */
     public Resource getResourceById(int id){
         Resource res = null;
         for(List<Resource> list : resourceStore.values()){
@@ -60,6 +86,10 @@ public class ResourceRepository {
         return res;
     }
 
+    /**
+     * Returns a String representation of all Resources
+     * @return String
+     */
     public String getAllResources(){
         StringBuilder ret = new StringBuilder();
         for(List<Resource> list : resourceStore.values()){
@@ -70,6 +100,10 @@ public class ResourceRepository {
         return ret.toString();
     }
 
+    /**
+     * Removes a Peer and it's Resources from the repository
+     * @param peer String
+     */
     public void removePeer(String peer){
         resourceStore.remove(peer);
     }
