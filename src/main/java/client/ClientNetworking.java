@@ -96,7 +96,7 @@ public class ClientNetworking {
                 String file = br.lines().collect(Collectors.joining());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(bos);
-                os.write(file.getBytes());
+                os.writeObject(packet);
                 os.flush();
                 byte[] sendData = bos.toByteArray();
                 os.close();
