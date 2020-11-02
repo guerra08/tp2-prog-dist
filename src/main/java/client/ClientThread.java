@@ -6,6 +6,7 @@ import packet.RequestPacket;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.Set;
 import static client.ClientNetworking.*;
 
@@ -36,9 +37,11 @@ public class ClientThread implements Runnable{
                 ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
                 Object obj = is.readObject();
                 if (obj instanceof RequestPacket) {
-                    FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
+                    System.out.println("Request packet received from" + ((RequestPacket) obj).getPort());
+                    ArrayList<FilePacket> filePackets = FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
+                    sendFilePackets(filePackets, clientSocket);
                 } else if (obj instanceof FilePacket) {
-                    System.out.println("aaaa");
+                    System.out.println("Olá senhor, o seu FilePacket chegou. " + ((FilePacket) obj).getFileName());
                 }
             }
             catch (IOException ignored){ }

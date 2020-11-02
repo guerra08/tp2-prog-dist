@@ -72,7 +72,7 @@ public class ClientNetworking {
             if(response.getResponseCode() == 200){
                 try {
                     Resource r = mapper.readValue(response.getResponseMessage(), Resource.class);
-                    sendPacket(new RequestPacket(r.getName(), r.getPeerIp(), r.getPeerPort()), socket);
+                    sendPacket(new RequestPacket(r.getName(), socket.getLocalAddress().getHostAddress(), socket.getLocalPort(), r.getPeerIp(), r.getPeerPort()), socket);
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
@@ -88,12 +88,7 @@ public class ClientNetworking {
      */
     public static void sendPacket(BasePacket packet, DatagramSocket socket) {
         if(packet instanceof FilePacket){
-            System.out.println(((FilePacket) packet).getFileName());
-        }
-        if(packet instanceof RequestPacket){
             try {
-                BufferedReader br = new BufferedReader(new FileReader(((RequestPacket) packet).getFileName()));
-                String file = br.lines().collect(Collectors.joining());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(bos);
                 os.writeObject(packet);
@@ -103,14 +98,39 @@ public class ClientNetworking {
                 bos.close();
                 DatagramPacket sendPacket = new DatagramPacket(sendData,
                         sendData.length,
-                        InetAddress.getByName(((RequestPacket) packet).getIp()),
-                        ((RequestPacket) packet).getPort());
+                        InetAddress.getByName(((FilePacket) packet).getIp()),
+                        ((FilePacket) packet).getPort());
+                socket.send(sendPacket);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if(packet instanceof RequestPacket){
+            try {
+                System.out.println(packet.toString());
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream os = new ObjectOutputStream(bos);
+                os.writeObject(packet);
+                os.flush();
+                byte[] sendData = bos.toByteArray();
+                os.close();
+                bos.close();
+                DatagramPacket sendPacket = new DatagramPacket(sendData,
+                        sendData.length,
+                        InetAddress.getByName(((RequestPacket) packet).getDestinationIp()),
+                        ((RequestPacket) packet).getDestinationPort());
                 socket.send(sendPacket);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    public static void sendFilePackets(ArrayList<FilePacket> filePackets, DatagramSocket socket) {
+        for (int i = 0; i < filePackets.size(); i++) {
+            sendPacket(filePackets.get(i), socket);
+        }
     }
 
     /**
