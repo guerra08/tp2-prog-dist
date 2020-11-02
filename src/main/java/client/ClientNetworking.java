@@ -107,7 +107,6 @@ public class ClientNetworking {
         }
         if(packet instanceof RequestPacket){
             try {
-                System.out.println(packet.toString());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(bos);
                 os.writeObject(packet);

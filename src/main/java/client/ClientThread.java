@@ -15,21 +15,20 @@ public class ClientThread implements Runnable{
     private final String ip;
     private final int port;
     private final DatagramSocket clientSocket;
+    private ArrayList<FilePacket> filePackets;
 
     public ClientThread(String ip, int port, DatagramSocket socket) {
         this.ip = ip;
         this.port = port;
         this.clientSocket = socket;
+        filePackets = new ArrayList<>();
     }
     
     @Override
     public void run() {
-        BufferedReader br;
-        int clientPort;
-        Set<String> recievedPackets;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                clientSocket.setSoTimeout(500);
+                clientSocket.setSoTimeout(2000);
                 byte[] buf = new byte[1024];
                 DatagramPacket dp = new DatagramPacket(buf, buf.length);
                 clientSocket.receive(dp);
@@ -37,16 +36,17 @@ public class ClientThread implements Runnable{
                 ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
                 Object obj = is.readObject();
                 if (obj instanceof RequestPacket) {
-                    System.out.println("Request packet received from" + ((RequestPacket) obj).getPort());
-                    ArrayList<FilePacket> filePackets = FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
-                    sendFilePackets(filePackets, clientSocket);
+                    ArrayList<FilePacket> files = FileUtil.getFilePacketOfRequest(((RequestPacket) obj));
+                    sendFilePackets(files, clientSocket);
                 } else if (obj instanceof FilePacket) {
-                    ArrayList<FilePacket> filePackets = new ArrayList<>();
                     filePackets.add((FilePacket) obj);
-                    FileUtil.mountFileFromPackets(filePackets);
+                    if (((FilePacket) obj).isLastPacket()) {
+                        FileUtil.mountFileFromPackets(filePackets);
+                    }
                 }
             }
-            catch (IOException ignored){ }
+            catch (IOException ignored){
+            }
             catch (ClassNotFoundException e){
                 e.printStackTrace();
                 System.exit(1);
