@@ -48,7 +48,6 @@ public class PeersServlet extends HttpServlet {
     }
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("PUT");
         String requestUrl = request.getRequestURI();
         String[] splitUrl = requestUrl.split("/");
         String requestBody = request.getReader().lines().collect(Collectors.joining());
