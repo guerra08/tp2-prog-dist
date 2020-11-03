@@ -14,6 +14,12 @@ public class OverlayTask extends TimerTask {
     private final Integer port;
     private final String server;
 
+    /**
+     * OverlayTask
+     * @param ip String Peer IP
+     * @param port Integer Peer Port
+     * @param server String Server address
+     */
     public OverlayTask(String ip, Integer port, String server) {
         this.ip = ip;
         this.port = port;
